@@ -1,4 +1,5 @@
 
+import os
 import requests
 import datetime
 from bs4 import BeautifulSoup
@@ -386,10 +387,6 @@ async def geturl_cmd(interaction: discord.Interaction):
 					value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>")
 	await interaction.response.send_message(embed=embedVar)
 
-# TOKEN (#region folded)
-#region
-token = "MTI5MTUzOTMwOTI3MDQwMTEwMQ.G6ADXj.19ol3P8ER-O6ezW5oz5_OhbFarVmScdEk6GR8g"
-#endregion
-
+token = os.environ['TOKEN']
 
 client.run(token)
