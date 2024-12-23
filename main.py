@@ -389,6 +389,11 @@ async def geturl_cmd(interaction: discord.Interaction):
 					value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>")
 	await interaction.response.send_message(embed=embedVar)
 
+if not os.path.exists("server_urls.json"):
+	with open("server_urls.json", "w") as urlsfile:
+		urlsfile.write("{}")
+
+
 token = os.environ['TOKEN']
 keep_alive()
 client.run(token)
