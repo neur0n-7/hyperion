@@ -11,6 +11,8 @@ from discord import app_commands
 from table2ascii import PresetStyle
 from table2ascii import table2ascii as t2a
 
+from keep_alive import keep_alive
+
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
@@ -388,5 +390,5 @@ async def geturl_cmd(interaction: discord.Interaction):
 	await interaction.response.send_message(embed=embedVar)
 
 token = os.environ['TOKEN']
-
+keep_alive()
 client.run(token)
