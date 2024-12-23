@@ -1,0 +1,395 @@
+
+import requests
+import datetime
+from bs4 import BeautifulSoup
+import json
+
+import discord
+from discord import app_commands
+
+from table2ascii import PresetStyle
+from table2ascii import table2ascii as t2a
+
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
+tree = app_commands.CommandTree(client)
+
+
+def get_time(code):
+	return(datetime.datetime.now().strftime("%"+code))
+
+
+def current_time():
+	month = get_time('B')
+	year = get_time('Y')
+	hour = get_time('I')
+	minute = get_time('M')
+	am_pm = get_time('p')
+	second = get_time('S')
+	dayofweek = get_time('A')
+	date = get_time('d')
+	date = (dayofweek+', '+month+ ' '+date+', '+year)
+	return (hour+':'+minute+':'+second+' '+am_pm)
+
+
+def pull_leaderboard(interaction):
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+
+	url = server_urls[str(interaction.guild.id)]
+	raw = requests.get(url).content
+	soup = BeautifulSoup(raw, "html.parser")
+	text = list(soup.find_all(string=True))
+	cleaned = []
+	for t in text:
+		t = str(t)
+		cleaned_t = t.replace("\n", "")
+		cleaned_t = cleaned_t.replace(" ", "")
+		if cleaned_t != "" and cleaned_t[0] != "\xa0":
+			cleaned.append(cleaned_t)
+
+	score_index = cleaned.index("Score")
+
+	cleaned = cleaned[score_index + 1:]
+
+	grouped = list(zip(*[cleaned[i::5] for i in range(5)]))
+	grouped = [list(x) for x in grouped]
+
+	output = t2a(
+		header=["Position", "Name", "Images", "Time", "Total Score"],
+		body=grouped,
+		style=PresetStyle.ascii_borderless
+	)
+
+	splitted = output.split("\n")
+	final = [x for x in splitted if "---" not in x]
+
+	return final
+
+
+
+def get_all_images(interaction):
+
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+	url = server_urls[str(interaction.guild.id)]
+
+	raw = requests.get(url).content
+	soup = BeautifulSoup(raw, "html.parser")
+	text = list(soup.find_all(string=True))
+	cleaned = []
+	for t in text:
+		t = str(t)
+		cleaned_t = t.replace("\n", "")
+		cleaned_t= cleaned_t.replace(" ","")
+		if cleaned_t!="" and cleaned_t[0]!="\xa0":
+			cleaned.append(cleaned_t)
+	
+	filter_index = cleaned.index("Filterbyimage:")
+	rank_index = cleaned.index("Rank")
+
+	return cleaned[filter_index+1:rank_index]
+
+
+def image_leaderboard(image, interaction):
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+	url = server_urls[str(interaction.guild.id)]
+	
+	raw = requests.get(f"{url}image/{image}").content
+	soup = BeautifulSoup(raw, "html.parser")
+	text = list(soup.find_all(string=True))
+	cleaned = []
+	for t in text:
+		t = str(t)
+		cleaned_t = t.replace("\n", "")
+		cleaned_t = cleaned_t.replace(" ", "")
+		if cleaned_t != "" and cleaned_t[0] != "\xa0":
+			cleaned.append(cleaned_t)
+		
+	score_index = cleaned.index("Score")
+	cleaned = cleaned[score_index + 1:]
+
+	grouped = list(zip(*[cleaned[i::4] for i in range(4)]))
+	grouped = [list(x) for x in grouped]
+
+	output = t2a(
+		header=["Position", "Name", "Time", "Total Score"],
+		body=grouped,
+		style=PresetStyle.ascii_borderless
+	)
+
+	splitted = output.split("\n")
+	final = [x for x in splitted if "---" not in x]
+
+	return final
+
+
+def check_no_redirect(url):
+	try:
+		response = requests.get(url, allow_redirects=True)
+		if response.history:
+			return response.status_code == response.url
+		else:
+			return True
+	except requests.exceptions.RequestException as e:
+		return False
+
+
+def pull_team(team, interaction):
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+	url = server_urls[str(interaction.guild.id)]
+	
+	team = team.replace(" ", "").title()
+
+	if team != "" and check_no_redirect(f"{url}team/{team}"):
+
+		raw = requests.get(f"{url}team/{team}").content
+		soup = BeautifulSoup(raw, "html.parser")
+		text = list(soup.find_all(string=True))
+		cleaned = []
+
+		for t in text:
+			cleaned_t = str(t).replace("\n", "")
+
+			if cleaned_t.startswith("Scores Over Time"):
+				break
+
+			filler = (
+				"html", "Σαρπηδών", "Announcements", "Login", "Leaderboard",
+				"Team", "Play Time", "Total Score", "Elapsed", team, "Current Image",
+				"Completion", "Found", "Penalties", "Points", "Last Update"
+			)
+
+			for f in filler:
+				if f.lower() in cleaned_t.lower() or f.replace(" ", "") == "Image":
+					break
+			else:
+				if cleaned_t.replace(" ", "") != "" and not cleaned_t.startswith("form"):
+					cleaned.append(cleaned_t.strip().rstrip())
+
+		overall = cleaned[:2]
+
+		to_table = cleaned[3:]
+		grouped = list(zip(*[to_table[i::8] for i in range(8)]))
+
+		tables = {}
+
+		for image in grouped:
+			temp = list(image)
+			image_name = temp.pop(0)
+
+			headers = [
+				"Play Time", "Elapsed Time", "Last Update", "Completion Time",
+				"Found Vulns", "Penalties", "Points"
+			]
+
+			unformatted = []
+			for header, value in zip(headers, temp):
+				unformatted.append((header, value))
+
+			tables[image_name] = t2a(
+				body=unformatted,
+				style=PresetStyle.thin
+			)
+
+		return overall, tables
+	return None
+
+
+
+def get_all_teams(interaction):
+	return [j[1] for j in [i.split() for i in pull_leaderboard(interaction)[1:]]]
+
+
+@client.event
+async def on_ready():
+	await tree.sync()
+	print(f'{client.user} is online and active in Discord.')
+	await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="/help for commands"))
+
+
+@tree.command(name="ping", description="Checks if Hyperion is online")
+async def ping_cmd(interaction: discord.Interaction):
+	embedVar = discord.Embed(title=":white_check_mark:   Pong!", description="Hyperion is online.", color=0x0d2d43)
+	await interaction.response.send_message(embed=embedVar)
+
+
+@tree.command(name="help", description="List all Hyperion commands")
+async def help_cmd(interaction: discord.Interaction):
+	embedVar = discord.Embed(title="Help", color=0x0d2d43)
+	embedVar.add_field(name="/help", value="List all Hyperion commands", inline=False)
+	embedVar.add_field(name="/ping", value="Checks if Hyperion is online", inline=False)
+	embedVar.add_field(name="/leaderboard", value="Fetches the current leaderboard- overall or for a specific image", inline=False)
+	embedVar.add_field(name="/team", value="Fetches a team's information", inline=False)
+	embedVar.add_field(name="/seturl", value="Sets the scoring server URL for this server (Manage Server permissions required)", inline=False)
+	embedVar.add_field(name="/geturl", value="Gets the current scoring server URL for this server", inline=False)
+	embedVar.add_field(name="", value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>", inline=True)
+	await interaction.response.send_message(embed=embedVar)
+
+@tree.command(name="team", description="Fetches a team's information")
+async def team_cmd(interaction: discord.Interaction):
+	
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+	if str(interaction.guild.id) not in server_urls:
+		embedVar = discord.Embed(title="Error", color=0xff0000)
+		embedVar.add_field(name="No scoring server URL has been set for this server.", 
+					 value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>", inline=False)
+		await interaction.response.send_message(embed=embedVar, ephemeral=True)
+		return
+
+
+	async def team_select_callback(interaction: discord.Interaction):
+		team = select_menu.values[0]
+
+		output = pull_team(team, interaction)
+		if output is None:
+			embedVar = discord.Embed(title="Team Info", color=0xff0000)
+			embedVar.add_field(name="An error occured.", value="")
+		else:
+			overall, tables = output
+			embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43)
+			place = "Error"
+			for field in pull_leaderboard(interaction):
+				if team.lower() in field.lower():
+					place = field.strip().split()[0]
+			embedVar.add_field(name="**Overall**", value=f"""<:podium:1304553557080539146> Current Place: {place}
+	:hourglass: Play Time: {overall[0]}
+	:dart: Total Score: {overall[1]}
+			""")
+			for image in tables:
+				embedVar.add_field(name=f"**{image}**", value=f"```{tables[image]}```", inline=False)
+			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
+		await interaction.response.send_message(embed=embedVar)
+
+	teams = get_all_teams(interaction)
+	choices = [discord.SelectOption(label=team, value=team) for team in teams]
+
+	select_menu = discord.ui.Select(
+		placeholder="Choose a team...",
+		options=choices
+	)
+
+	select_menu.callback = team_select_callback 
+
+	embedVar = discord.Embed(title="Team Info", color=0x0d2d43)
+	embedVar.add_field(name="Please select a team to get the information of.", 
+					value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>", inline=False)
+
+	await interaction.response.send_message(
+		embed=embedVar,
+		ephemeral=True,
+		view=discord.ui.View().add_item(select_menu)
+	)
+
+	
+@tree.command(name="leaderboard", description="Fetches the current leaderboard")
+async def leaderboard_cmd(interaction: discord.Interaction):
+	
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+	if str(interaction.guild.id) not in server_urls:
+		embedVar = discord.Embed(title="Error", color=0xff0000)
+		embedVar.add_field(name="No scoring server URL has been set for this server.", 
+					 value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>", inline=False)
+		await interaction.response.send_message(embed=embedVar, ephemeral=True)
+		return
+	
+	async def leaderboard_select_callback(interaction: discord.Interaction):
+		image = select_menu.values[0]
+		
+		if image in get_all_images(interaction):
+			embedVar = discord.Embed(title=f"<:podium:1304553557080539146>   Leaderboard: {image}", color=0x0d2d43)
+			for line in image_leaderboard(image, interaction)[:19]:
+				embedVar.add_field(name="", value=f"```{line}```", inline=False)
+					
+			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>", inline=False)
+			await interaction.response.send_message(embed=embedVar)
+		elif image=="Overall":
+			embedVar = discord.Embed(title=f"<:podium:1304553557080539146>   Leaderboard: {image}", color=0x0d2d43)
+			for line in pull_leaderboard(interaction)[:19]:
+				embedVar.add_field(name="", value=f"```{line}```", inline=False)
+					
+			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>", inline=False)
+			await interaction.response.send_message(embed=embedVar)
+			
+
+
+	images = ["Overall"] + get_all_images(interaction)
+	
+	if not images:
+		await interaction.response.send_message("No images available.")
+		return
+
+
+	choices = [discord.SelectOption(label=image, value=image) for image in images]
+	
+	select_menu = discord.ui.Select(
+		placeholder="Choose an image leaderboard or \"Overall\"...",
+		options=choices
+	)
+
+	select_menu.callback = leaderboard_select_callback
+
+	embedVar = discord.Embed(title="Leaderboard", color=0x0d2d43)
+	embedVar.add_field(name="Please select an image or \"Overall\" to get the leaderboard for.", 
+					value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>", inline=False)
+
+	await interaction.response.send_message(
+		embed=embedVar,
+		ephemeral=True,
+		view=discord.ui.View().add_item(select_menu)
+	)
+
+
+@tree.command(name="seturl", description="Set the scoring server URL for this server.")
+@app_commands.describe(newurl="Enter the URL of the scoring server to connect the bot to.")
+async def seturl_cmd(interaction: discord.Interaction, newurl: str):
+	if not interaction.user.guild_permissions.manage_guild:
+		embedVar = discord.Embed(title="Error", color=0xff0000)
+		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.",
+					 value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>")
+		await interaction.response.send_message(
+			embed=embedVar,
+			ephemeral=True
+		)
+		return
+
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+	server_id = str(interaction.guild.id)
+	server_urls[server_id] = newurl
+
+	with open("server_urls.json", "w") as url_file:
+		json.dump(server_urls, url_file)
+
+	await interaction.response.send_message(f"URL set to: {newurl} for this server.")
+
+@tree.command(name="geturl", description="Get the current scoring server URL for this server.")
+async def geturl_cmd(interaction: discord.Interaction):
+
+	with open("server_urls.json", "r") as url_file:
+		server_urls = json.load(url_file)
+
+	server_id = str(interaction.guild.id)
+	if server_id not in server_urls:
+		embedVar = discord.Embed(title="Error", color=0xff0000)
+		embedVar.add_field(name="No URL has been set for this server.",
+					 value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>")
+		await interaction.response.send_message(embed=embedVar, ephemeral=True)
+		return
+	embedVar = discord.Embed(title="Current URL", color=0x0d2d43)
+	embedVar.add_field(name=f"The current URL for this server is: {server_urls[server_id]}",
+					value="-# Hyperion Scoring Server Bot  <:elysium:1292187615734399007>")
+	await interaction.response.send_message(embed=embedVar)
+
+# TOKEN (#region folded)
+#region
+token = "MTI5MTUzOTMwOTI3MDQwMTEwMQ.G6ADXj.19ol3P8ER-O6ezW5oz5_OhbFarVmScdEk6GR8g"
+#endregion
+
+
+client.run(token)
