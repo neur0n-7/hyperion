@@ -11,7 +11,7 @@ from discord import app_commands
 from table2ascii import PresetStyle
 from table2ascii import table2ascii as t2a
 
-from keep_alive import keep_alive
+from keep_alive import keep_alive, start_self_ping
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -396,5 +396,5 @@ if not os.path.exists("server_urls.json"):
 
 token = os.environ['TOKEN']
 keep_alive()
-
+start_self_ping()
 client.run(token)
