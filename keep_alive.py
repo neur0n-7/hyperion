@@ -6,7 +6,10 @@ import requests
 
 app = Flask('')
 
-@@ -11,6 +13,22 @@ def home():
+@app.route('/')
+def home():
+    return "Hyperion is online."
+
 def run():
   app.run(host='0.0.0.0',port=os.environ.get('PORT', 8080))
 
