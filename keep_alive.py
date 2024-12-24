@@ -1,3 +1,12 @@
+from flask import Flask
+from threading import Thread
+import os
+import time
+import requests
+
+app = Flask('')
+
+@@ -11,6 +13,22 @@ def home():
 def run():
   app.run(host='0.0.0.0',port=os.environ.get('PORT', 8080))
 
