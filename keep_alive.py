@@ -17,10 +17,6 @@ def self_ping():
     while True:
         try:
             response = requests.get("https://hyperion-z4wx.onrender.com/")
-            if response.status_code == 200:
-                print("Self ping successful")
-            else:
-                print("Ping failed with status code:", response.status_code)
         except requests.exceptions.RequestException as e:
             print("Ping failed:", e)
         time.sleep(5)
