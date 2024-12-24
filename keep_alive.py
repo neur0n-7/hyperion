@@ -13,22 +13,6 @@ def home():
 def run():
   app.run(host='0.0.0.0',port=os.environ.get('PORT', 8080))
 
-def self_ping():
-    while True:
-        try:
-            response = requests.get("https://hyperion-z4wx.onrender.com/")
-            if response.status_code == 200:
-                print("Self ping successful")
-            else:
-                print("Ping failed with status code:", response.status_code)
-        except requests.exceptions.RequestException as e:
-            print("Ping failed:", e)
-        time.sleep(5)
-
-def start_self_ping():
-    s = Thread(target=self_ping)
-    s.start()
-
 def keep_alive():
     t = Thread(target=run)
     t.start()
