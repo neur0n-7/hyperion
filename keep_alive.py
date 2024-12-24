@@ -18,8 +18,8 @@ def self_ping():
         try:
             response = requests.get("https://hyperion-z4wx.onrender.com/")
         except requests.exceptions.RequestException as e:
-            print("Ping failed:", e)
-        time.sleep(5)
+            print("ERROR: Ping failed:", e)
+        time.sleep(10)
 def start_self_ping():
     s = Thread(target=self_ping)
     s.start()
