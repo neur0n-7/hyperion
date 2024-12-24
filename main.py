@@ -371,8 +371,8 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 	with open("server_urls.json", "w") as url_file:
 		json.dump(server_urls, url_file)
 
-	embedVar = discord.Embed(title="URL Set", color=0x0d2d43)
-	embedVar.add_field(name=f"URL set to: {newurl} for this server.", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
+	embedVar = discord.Embed(title=f"URL set to {newurl} for this server.", color=0x0d2d43)
+	embedVar.add_field(name="", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
 	await interaction.response.send_message(embed=embedVar)
 
 @tree.command(name="geturl", description="Get the current scoring server URL for this server.")
