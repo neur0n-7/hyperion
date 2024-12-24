@@ -229,8 +229,28 @@ async def help_cmd(interaction: discord.Interaction):
 	embedVar.add_field(name="/team", value="Fetches a team's information", inline=False)
 	embedVar.add_field(name="/seturl", value="Sets the scoring server URL for this server (Manage Server permissions required)", inline=False)
 	embedVar.add_field(name="/geturl", value="Gets the current scoring server URL for this server", inline=False)
+	embedVar.add_field(name="/invite", value="Invite Hyperion to your own server", inline=False)
 	embedVar.add_field(name="", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=True)
 	await interaction.response.send_message(embed=embedVar)
+
+@tree.command(name="invite", description="Invite Hyperion to your own servers")
+async def invite_cmd(interaction: discord.Interaction):
+	invite_link = os.environ["INVITE_LINK"]
+	button = discord.ui.Button(
+		label="Invite me",
+		url=invite_link,
+		style=discord.ButtonStyle.link
+	)
+
+	embedVar = discord.Embed(title="Invite Hyperion", color=0x0d2d43)
+	embedVar.add_field(name="Click the button below to invite me to your server!",
+			   value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", 
+			   inline=False)
+
+	view = discord.ui.View()
+	view.add_item(button)
+
+	await interaction.response.send_message(embed=embedVar, view=view)
 
 @tree.command(name="team", description="Fetches a team's information")
 async def team_cmd(interaction: discord.Interaction):
