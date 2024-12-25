@@ -1,0 +1,60 @@
+body {
+    background-color: rgb(87, 101, 242);
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: left;
+    padding: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.content {
+    flex: 1;
+    text-align: right;
+}
+
+.logo img {
+    width: 700px;
+    height: auto;
+    flex: 1;
+    transition: width 0.5s ease;
+}
+
+.logo:hover {
+    width: 750px;
+}
+
+h1 {
+    font-size: 100px;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: white;
+}
+
+p {
+    font-size: 20px;
+    margin: 10;
+    padding: 0;
+}
+
+.invbutton{
+    display: inline-block; 
+    padding: 15px 30px; 
+    background-color: rgb(47, 63, 217);
+    color: white; 
+    text-decoration: none; 
+    border-radius: 100px;
+    margin-top: 20px;
+    text-align: center;
+    font-size: 25px;
+    width: 350px;
+    transition: background-color 0.3s ease;
+}
+
+.invbutton:hover{
+    background-color: rgb(30, 45, 194);
+}
