@@ -147,60 +147,56 @@ def pull_team(team, interaction):
 	
 	team = team.replace(" ", "").title()
 
-	if team != "" and check_no_redirect(f"{url}team/{team}"):
+	raw = requests.get(f"{url}team/{team}").content
+	soup = BeautifulSoup(raw, "html.parser")
+	text = list(soup.find_all(string=True))
+	cleaned = []
 
-		raw = requests.get(f"{url}team/{team}").content
-		soup = BeautifulSoup(raw, "html.parser")
-		text = list(soup.find_all(string=True))
-		cleaned = []
+	for t in text:
+		cleaned_t = str(t).replace("\n", "")
 
-		for t in text:
-			cleaned_t = str(t).replace("\n", "")
+		if cleaned_t.startswith("Scores Over Time"):
+			break
 
-			if cleaned_t.startswith("Scores Over Time"):
+		filler = (
+			"html", "Σαρπηδών", "Announcements", "Login", "Leaderboard",
+			"Team", "Play Time", "Total Score", "Elapsed", team, "Current Image",
+			"Completion", "Found", "Penalties", "Points", "Last Update"
+		)
+
+		for f in filler:
+			if f.lower() in cleaned_t.lower() or f.replace(" ", "") == "Image":
 				break
+		else:
+			if cleaned_t.replace(" ", "") != "" and not cleaned_t.startswith("form"):
+				cleaned.append(cleaned_t.strip().rstrip())
 
-			filler = (
-				"html", "Σαρπηδών", "Announcements", "Login", "Leaderboard",
-				"Team", "Play Time", "Total Score", "Elapsed", team, "Current Image",
-				"Completion", "Found", "Penalties", "Points", "Last Update"
-			)
+	overall = cleaned[:2]
 
-			for f in filler:
-				if f.lower() in cleaned_t.lower() or f.replace(" ", "") == "Image":
-					break
-			else:
-				if cleaned_t.replace(" ", "") != "" and not cleaned_t.startswith("form"):
-					cleaned.append(cleaned_t.strip().rstrip())
+	to_table = cleaned[3:]
+	grouped = list(zip(*[to_table[i::8] for i in range(8)]))
 
-		overall = cleaned[:2]
+	tables = {}
 
-		to_table = cleaned[3:]
-		grouped = list(zip(*[to_table[i::8] for i in range(8)]))
+	for image in grouped:
+		temp = list(image)
+		image_name = temp.pop(0)
 
-		tables = {}
+		headers = [
+			"Play Time", "Elapsed Time", "Last Update", "Completion Time",
+			"Found Vulns", "Penalties", "Points"
+		]
 
-		for image in grouped:
-			temp = list(image)
-			image_name = temp.pop(0)
+		unformatted = []
+		for header, value in zip(headers, temp):
+			unformatted.append((header, value))
 
-			headers = [
-				"Play Time", "Elapsed Time", "Last Update", "Completion Time",
-				"Found Vulns", "Penalties", "Points"
-			]
+		tables[image_name] = t2a(
+			body=unformatted,
+			style=PresetStyle.thin
+		)
 
-			unformatted = []
-			for header, value in zip(headers, temp):
-				unformatted.append((header, value))
-
-			tables[image_name] = t2a(
-				body=unformatted,
-				style=PresetStyle.thin
-			)
-
-		return overall, tables
-	return None
-
+	return overall, tables
 
 
 def get_all_teams(interaction):
@@ -388,17 +384,35 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 		)
 		return
 
-	with open("server_urls.json", "r") as url_file:
-		server_urls = json.load(url_file)
-	server_id = str(interaction.guild.id)
-	server_urls[server_id] = newurl
+	# fix newurl
+	newurl = newurl.lower()
+	newurl = newurl.strip()
+	if newurl.startswith("https"):
+	    newurl = newurl[len("https"):]
+	if newurl.startswith("http"):
+	    newurl = newurl[len("http"):]
+	if newurl.startswith("://"):
+	    newurl = newurl[len("://"):]
+	newurl = newurl.rstrip("/")
+	newurl = "https://"+newurl+"/"
 
-	with open("server_urls.json", "w") as url_file:
-		json.dump(server_urls, url_file)
-
-	embedVar = discord.Embed(title=f"URL set to {newurl} for this server.", color=0x0d2d43)
-	embedVar.add_field(name="", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
-	await interaction.response.send_message(embed=embedVar)
+	if check_no_redirect(newurl):
+		with open("server_urls.json", "r") as url_file:
+			server_urls = json.load(url_file)
+		server_id = str(interaction.guild.id)
+		server_urls[server_id] = newurl
+	
+		with open("server_urls.json", "w") as url_file:
+			json.dump(server_urls, url_file)
+	
+		embedVar = discord.Embed(title=f"URL set to {newurl} for this server.", color=0x0d2d43)
+		embedVar.add_field(name="", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
+		await interaction.response.send_message(embed=embedVar)
+	else:
+		embedVar = discord.Embed(title="Error", color=0xff0000)
+		embedVar.add_field(name=f"Invalid URL. Check if there is a typo in {newurl}.",
+					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
+		await interaction.response.send_message(embed=embedVar, ephemeral=True)
 
 @tree.command(name="geturl", description="Get the current scoring server URL for this server.")
 async def geturl_cmd(interaction: discord.Interaction):
