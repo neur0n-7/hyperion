@@ -16,7 +16,7 @@ def run():
 def self_ping():
     while True:
         try:
-            response = requests.get(os.environ[SERVICE_URL])
+            response = requests.get(os.environ["SERVICE_URL"])
         except requests.exceptions.RequestException as e:
             print("ERROR: Ping failed:", e)
         time.sleep(10)
