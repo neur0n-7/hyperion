@@ -216,8 +216,13 @@ async def on_ready():
 
 @tree.command(name="ping", description="Checks if Hyperion is online")
 async def ping_cmd(interaction: discord.Interaction):
-	embedVar = discord.Embed(title=":white_check_mark:   Pong!", description="Hyperion is online.", color=0x0d2d43)
-	await interaction.response.send_message(embed=embedVar)
+    latency = round(interaction.client.latency * 1000)
+    embedVar = discord.Embed(
+        title=":white_check_mark:   Pong!",
+        description=f"Hyperion is online.\nPing: {latency}ms",
+        color=0x0d2d43
+    )
+    await interaction.response.send_message(embed=embedVar)
 
 
 @tree.command(name="help", description="List all Hyperion commands")
