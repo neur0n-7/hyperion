@@ -325,14 +325,39 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 		
 		if image in get_all_images(interaction):
 			embedVar = discord.Embed(title=f"<:podium:1304553557080539146>   Leaderboard: {image}", color=0x0d2d43)
-			content = "\n\n".join(image_leaderboard(interaction)[:19])
-			embedVar.add_field(name="", value=f"```{content}```", inline=False)
+			lines = image_leaderboard(interaction)[:19]
+			current_field=""
+			for line in lines:
+				if len(current_field)+len(line)>=1000:
+					embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
+					current_field = ""
+				else:
+					if current_field:
+						current_field+="\n\n"
+					current_field+=line
+					
+			if current_field: # leftover content?
+			    embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
+				
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
 			await interaction.response.send_message(embed=embedVar)
+			
 		elif image=="Overall":
-			embedVar = discord.Embed(title=f"<:podium:1304553557080539146>   Leaderboard: {image}", color=0x0d2d43)
-			content = "\n\n".join(pull_leaderboard(interaction)[:19])
-			embedVar.add_field(name="", value=f"```{content}```", inline=False)
+			embedVar = discord.Embed(title=f"<:podium:1304553557080539146>   Overall Leaderboard}", color=0x0d2d43)
+			lines = pull_leaderboard(interaction)[:19]
+			current_field=""
+			for line in lines:
+				if len(current_field)+len(line)>=1000:
+					embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
+					current_field = ""
+				else:
+					if current_field:
+						current_field+="\n\n"
+					current_field+=line
+					
+			if current_field: # leftover content?
+			    embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
+				
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
 			await interaction.response.send_message(embed=embedVar)
 			
