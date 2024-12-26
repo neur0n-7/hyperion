@@ -261,7 +261,7 @@ async def team_cmd(interaction: discord.Interaction):
 		embedVar = discord.Embed(title="Error", color=0xff0000)
 		embedVar.add_field(name="No scoring server URL has been set for this server.", 
 					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
-		await interaction.response.send_message(embed=embedVar, ephemeral=True)
+		await interaction.followup.send(embed=embedVar, ephemeral=True)
 		return
 
 
@@ -304,7 +304,7 @@ async def team_cmd(interaction: discord.Interaction):
 	embedVar.add_field(name="Please select a team to get the information of.", 
 					value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
 
-	await interaction.response.send_message(
+	await interaction.followup.send(
 		embed=embedVar,
 		ephemeral=True,
 		view=discord.ui.View().add_item(select_menu)
@@ -320,7 +320,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 		embedVar = discord.Embed(title="Error", color=0xff0000)
 		embedVar.add_field(name="No scoring server URL has been set for this server.", 
 					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
-		await interaction.response.send_message(embed=embedVar, ephemeral=True)
+		await interaction.followup.send(embed=embedVar, ephemeral=True)
 		return
 	
 	async def leaderboard_select_callback(interaction: discord.Interaction):
@@ -343,7 +343,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 				embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
 				
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
-			await interaction.response.send_message(embed=embedVar)
+			await interaction.followup.send(embed=embedVar)
 			
 		elif image=="Overall":
 			embedVar = discord.Embed(title="<:podium:1304553557080539146>   Overall Leaderboard", color=0x0d2d43)
@@ -362,14 +362,14 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 				embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
 				
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
-			await interaction.response.send_message(embed=embedVar)
+			await interaction.followup.send(embed=embedVar)
 			
 
 
 	images = ["Overall"] + get_all_images(interaction)
 	
 	if not images:
-		await interaction.response.send_message("No images available.")
+		await interaction.followup.send("No images available.")
 		return
 
 
@@ -386,7 +386,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 	embedVar.add_field(name="Please select an image or \"Overall\" to get the leaderboard for.", 
 					value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
 
-	await interaction.response.send_message(
+	await interaction.followup.send(
 		embed=embedVar,
 		ephemeral=True,
 		view=discord.ui.View().add_item(select_menu)
@@ -401,7 +401,7 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 		embedVar = discord.Embed(title="Error", color=0xff0000)
 		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.",
 					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
-		await interaction.response.send_message(
+		await interaction.followup.send(
 			embed=embedVar,
 			ephemeral=True
 		)
@@ -430,12 +430,12 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 	
 		embedVar = discord.Embed(title=f"URL set to {newurl} for this server.", color=0x0d2d43)
 		embedVar.add_field(name="", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
-		await interaction.response.send_message(embed=embedVar)
+		await interaction.followup.send(embed=embedVar)
 	else:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
 		embedVar.add_field(name=f"Invalid URL. Check if there is a typo in {newurl}.",
 					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
-		await interaction.response.send_message(embed=embedVar, ephemeral=True)
+		await interaction.followup.send(embed=embedVar, ephemeral=True)
 
 @tree.command(name="geturl", description="Get the current scoring server URL for this server.")
 async def geturl_cmd(interaction: discord.Interaction):
@@ -448,12 +448,12 @@ async def geturl_cmd(interaction: discord.Interaction):
 		embedVar = discord.Embed(title="Error", color=0xff0000)
 		embedVar.add_field(name="No URL has been set for this server.",
 					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
-		await interaction.response.send_message(embed=embedVar, ephemeral=True)
+		await interaction.followup.send(embed=embedVar, ephemeral=True)
 		return
 	embedVar = discord.Embed(title="Current URL", color=0x0d2d43)
 	embedVar.add_field(name=f"The current URL for this server is: {server_urls[server_id]}",
 					value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>")
-	await interaction.response.send_message(embed=embedVar)
+	await interaction.followup.send(embed=embedVar)
 
 if not os.path.exists("server_urls.json"):
 	with open("server_urls.json", "w") as urlsfile:
