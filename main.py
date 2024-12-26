@@ -208,19 +208,19 @@ async def on_ready():
 
 @tree.command(name="ping", description="Checks if Hyperion is online")
 async def ping_cmd(interaction: discord.Interaction):
-    await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
-    latency = round(interaction.client.latency * 1000)
-    embedVar = discord.Embed(
-        title=":white_check_mark:   Pong!",
-        description=f"Hyperion is online.\nPing: {latency}ms",
-        color=0x0d2d43
-    )
-    await interaction.response.send_message(embed=embedVar)
+	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
+	latency = round(interaction.client.latency * 1000)
+	embedVar = discord.Embed(
+		title=":white_check_mark:   Pong!",
+		description=f"Hyperion is online.\nPing: {latency}ms",
+		color=0x0d2d43
+	)
+	await interaction.response.send_message(embed=embedVar)
 
 
 @tree.command(name="help", description="List all Hyperion commands")
 async def help_cmd(interaction: discord.Interaction):
-    	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
+	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
 	embedVar = discord.Embed(title="Help", color=0x0d2d43)
 	embedVar.add_field(name="/help", value="List all Hyperion commands", inline=False)
 	embedVar.add_field(name="/ping", value="Checks if Hyperion is online", inline=False)
@@ -340,7 +340,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 					current_field+=line
 					
 			if current_field: # leftover content?
-			    embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
+				embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
 				
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
 			await interaction.response.send_message(embed=embedVar)
@@ -359,7 +359,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 					current_field+=line
 					
 			if current_field: # leftover content?
-			    embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
+				embedVar.add_field(name="", value=f"```{current_field}```", inline=False)
 				
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
 			await interaction.response.send_message(embed=embedVar)
@@ -411,11 +411,11 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 	newurl = newurl.lower()
 	newurl = newurl.strip()
 	if newurl.startswith("https"):
-	    newurl = newurl[len("https"):]
+		newurl = newurl[len("https"):]
 	if newurl.startswith("http"):
-	    newurl = newurl[len("http"):]
+		newurl = newurl[len("http"):]
 	if newurl.startswith("://"):
-	    newurl = newurl[len("://"):]
+		newurl = newurl[len("://"):]
 	newurl = newurl.rstrip("/")
 	newurl = "https://"+newurl+"/"
 
