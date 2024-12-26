@@ -326,7 +326,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 
 		if image in get_all_images(interaction):
 			embedVar = discord.Embed(title=f"<:podium:1304553557080539146>   Leaderboard: {image}", color=0x0d2d43)
-			content = "\n\n".join(image_leaderboard(interaction)[:19])
+			content = "\n\n".join(image_leaderboard(image, interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1321189506690322442>", inline=False)
 			await interaction.response.send_message(embed=embedVar)
