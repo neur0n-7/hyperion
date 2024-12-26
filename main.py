@@ -208,6 +208,7 @@ async def on_ready():
 
 @tree.command(name="ping", description="Checks if Hyperion is online")
 async def ping_cmd(interaction: discord.Interaction):
+    await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
     latency = round(interaction.client.latency * 1000)
     embedVar = discord.Embed(
         title=":white_check_mark:   Pong!",
@@ -219,6 +220,7 @@ async def ping_cmd(interaction: discord.Interaction):
 
 @tree.command(name="help", description="List all Hyperion commands")
 async def help_cmd(interaction: discord.Interaction):
+    	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
 	embedVar = discord.Embed(title="Help", color=0x0d2d43)
 	embedVar.add_field(name="/help", value="List all Hyperion commands", inline=False)
 	embedVar.add_field(name="/ping", value="Checks if Hyperion is online", inline=False)
@@ -232,6 +234,7 @@ async def help_cmd(interaction: discord.Interaction):
 
 @tree.command(name="invite", description="Invite Hyperion to your own servers")
 async def invite_cmd(interaction: discord.Interaction):
+	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
 	invite_link = os.environ["INVITE_LINK"]
 	button = discord.ui.Button(
 		label="Invite me",
@@ -251,7 +254,7 @@ async def invite_cmd(interaction: discord.Interaction):
 
 @tree.command(name="team", description="Fetches a team's information")
 async def team_cmd(interaction: discord.Interaction):
-	
+	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
 	with open("server_urls.json", "r") as url_file:
 		server_urls = json.load(url_file)
 	if str(interaction.guild.id) not in server_urls:
@@ -310,7 +313,7 @@ async def team_cmd(interaction: discord.Interaction):
 	
 @tree.command(name="leaderboard", description="Fetches the current leaderboard")
 async def leaderboard_cmd(interaction: discord.Interaction):
-	
+	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
 	with open("server_urls.json", "r") as url_file:
 		server_urls = json.load(url_file)
 	if str(interaction.guild.id) not in server_urls:
@@ -393,6 +396,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 @tree.command(name="seturl", description="Set the scoring server URL for this server.")
 @app_commands.describe(newurl="Enter the URL of the scoring server to connect the bot to.")
 async def seturl_cmd(interaction: discord.Interaction, newurl: str):
+	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
 	if not interaction.user.guild_permissions.manage_guild:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
 		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.",
@@ -435,7 +439,7 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 
 @tree.command(name="geturl", description="Get the current scoring server URL for this server.")
 async def geturl_cmd(interaction: discord.Interaction):
-
+	await interaction.response.defer()  # Acknowledge the interaction to prevent timeout
 	with open("server_urls.json", "r") as url_file:
 		server_urls = json.load(url_file)
 
