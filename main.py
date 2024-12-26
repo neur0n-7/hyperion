@@ -62,7 +62,7 @@ def pull_leaderboard(interaction):
 	output = t2a(
 		header=["Position", "Name", "Images", "Time", "Total Score"],
 		body=grouped,
-		style=PresetStyle.ascii_borderless
+		style=PresetStyle.thin
 	)
 
 	splitted = output.split("\n")	
@@ -118,7 +118,7 @@ def image_leaderboard(image, interaction):
 	output = t2a(
 		header=["Position", "Name", "Time", "Total Score"],
 		body=grouped,
-		style=PresetStyle.ascii_borderless
+		style=PresetStyle.thin
 	)
 
 	splitted = output.split("\n")	
