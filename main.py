@@ -65,9 +65,7 @@ def pull_leaderboard(interaction):
 		style=PresetStyle.ascii_borderless
 	)
 
-	splitted = output.split("\n")
-	final = [x for x in splitted if "---" not in x]
-	
+	splitted = output.split("\n")	
 	return final
 
 
@@ -123,9 +121,7 @@ def image_leaderboard(image, interaction):
 		style=PresetStyle.ascii_borderless
 	)
 
-	splitted = output.split("\n")
-	final = [x for x in splitted if "---" not in x]
-	
+	splitted = output.split("\n")	
 	return final
 
 
