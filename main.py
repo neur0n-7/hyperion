@@ -66,7 +66,7 @@ def pull_leaderboard(interaction):
 	)
 
 	splitted = output.split("\n")	
-	return final
+	return splitted
 
 
 
@@ -122,7 +122,7 @@ def image_leaderboard(image, interaction):
 	)
 
 	splitted = output.split("\n")	
-	return final
+	return splitted
 
 
 def check_no_redirect(url):
