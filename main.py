@@ -343,7 +343,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 			await interaction.response.send_message(embed=embedVar)
 			
 		elif image=="Overall":
-			embedVar = discord.Embed(title=f"<:podium:1304553557080539146>   Overall Leaderboard}", color=0x0d2d43)
+			embedVar = discord.Embed(title="<:podium:1304553557080539146>   Overall Leaderboard", color=0x0d2d43)
 			lines = pull_leaderboard(interaction)[:19]
 			current_field=""
 			for line in lines:
