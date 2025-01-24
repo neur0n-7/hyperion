@@ -457,9 +457,9 @@ async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: s
 			sys.stdout = io.StringIO()
 			try:
 				exec(cmd)
-				output = sys.stdout.getvalue()
+				output = sys.stdout.getvalue()[230]
 			except Exception as error:
-				output = (None, error)
+				output = (None, error)[230]
 			finally:
 				sys.stdout = old_stdout
 			embedVar = discord.Embed(title="Execution Output", color=0x0d2d43)
