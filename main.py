@@ -440,7 +440,7 @@ async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: s
 	# user is timed out
 	if userid in execute_access_timeouts.keys():
 		# check if timeout has expired
-		if time.time()-execute_access_timeouts[userid]>=300:
+		if time.time()-execute_access_timeouts[userid]>=600:
 			del execute_access_timeouts[userid]
 		else:
 			embedVar = discord.Embed(title="Error", color=0xff0000)
@@ -480,6 +480,7 @@ async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: s
 				execute_access_attempts[userid]=1
 				
 			if execute_access_attempts[userid]>=3:
+				execute_access_timeouts[userid]=time.time()
 				embedVar = discord.Embed(title="Timed out", color=0xff0000)
 				embedVar.add_field(name="You cannot enter any more modpanel passwords for the next 10 minutes.",
 						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
