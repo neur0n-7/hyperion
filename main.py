@@ -457,18 +457,18 @@ async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: s
 			sys.stdout = io.StringIO()
 			try:
 				exec(cmd)
-				output = sys.stdout.getvalue()[:230]
+				output = sys.stdout.getvalue()[:900]
 			except Exception as error:
-				output = (None, str(error)[:230])
+				output = (None, str(error)[:900])
 			finally:
 				sys.stdout = old_stdout
 			embedVar = discord.Embed(title="Execution Output", color=0x0d2d43)
 			if isinstance(output, tuple) and output[0] is None:
-				embedVar.add_field(name=f"**Execution error**: ```{output[1]}```",
-						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+				embedVar.add_field(name=f"**Execution error:**",
+						 value="```{output[1]}```\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
 			else:
-				embedVar.add_field(name=f"```{output}```",
-							 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+				embedVar.add_field(name=f"",
+							 value="```{output}```\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
 
 			await interaction.response.send_message(embed=embedVar, ephemeral=True)
 			
