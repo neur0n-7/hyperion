@@ -432,6 +432,7 @@ async def geturl_cmd(interaction: discord.Interaction):
 	await interaction.response.send_message(embed=embedVar)
 
 modpanel_group = app_commands.Group(name="modpanel", description="Hyperion mod commands")
+
 @modpanel_group.command(name="execute", description="Execute Python command on Hyperion console")
 async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: str):
 	userid = interaction.user.id
@@ -487,6 +488,13 @@ async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: s
 				embedVar.add_field(name=f"You have **{3-execute_access_attempts[userid]}** attempts remaining.",
 						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
 			await interaction.response.send_message(embed=embedVar, ephemeral=True)
+
+tree.add_command(modpanel_group)
+
+@client.event
+async def on_ready():
+	await tree.sync()
+	print("Logged in and ready")
 
 #######################
 
