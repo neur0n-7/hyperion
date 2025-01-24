@@ -458,7 +458,7 @@ async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: s
 			try:
 				exec(cmd)
 				output = sys.stdout.getvalue()
-			except error:
+			except Exception as error:
 				output = (None, error)
 			finally:
 				sys.stdout = old_stdout
