@@ -1,14 +1,16 @@
 import os
+import io
 import requests
 import datetime
-from bs4 import BeautifulSoup
 import json
+import time
+import sys
 
 import discord
 from discord import app_commands
-
 from table2ascii import PresetStyle
 from table2ascii import table2ascii as t2a
+from bs4 import BeautifulSoup
 
 from keep_alive import keep_alive, start_self_ping
 
@@ -17,6 +19,8 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
+execute_access_attempts = {}
+execute_access_timeouts = {}
 
 def get_time(code):
 	return(datetime.datetime.now().strftime("%"+code))
@@ -426,6 +430,65 @@ async def geturl_cmd(interaction: discord.Interaction):
 	embedVar.add_field(name=f"The current URL for this server is: {server_urls[server_id]}",
 					value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
 	await interaction.response.send_message(embed=embedVar)
+
+modpanel_group = app_commands.Group(name="modpanel", description="Hyperion mod commands")
+@modpanel_group.command(name="execute", description="Execute Python command on Hyperion console")
+async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: str):
+	userid = interaction.user.id
+
+	# user is timed out
+	if userid in execute_access_timeouts.keys():
+		# check if timeout has expired
+		if time.time()-execute_access_timeouts[userid]>=300:
+			del execute_access_timeouts[userid]
+		else:
+			embedVar = discord.Embed(title="Error", color=0xff0000)
+			embedVar.add_field(name=f"You are on a timeout. Please try again in **{round(execute_access_timeouts[userid]-time.time(), 1)}** seconds.",
+						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+			await interaction.response.send_message(embed=embedVar, ephemeral=True)
+			return
+	else:
+		if passwd==os.environ["MODPANEL_PASSWD"]:
+			# passwd correct
+			execute_access_attempts[userid]=0
+
+			old_stdout = sys.stdout
+			sys.stdout = io.StringIO()
+			try:
+				exec(cmd)
+				output = sys.stdout.getvalue()
+			except error:
+				output = (None, error)
+			finally:
+				sys.stdout = old_stdout
+			embedVar = discord.Embed(title="Execution Output", color=0x0d2d43)
+			if isinstance(output, tuple) and output[0] is None:
+				embedVar.add_field(name=f"**Execution error**: ```{output[1]}```",
+						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+			else:
+				embedVar.add_field(name=f"```{output}```",
+							 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+
+			await interaction.response.send_message(embed=embedVar, ephemeral=True)
+			
+		else:
+			# passwd incorrect
+			if userid in execute_access_attempts.keys():
+				execute_access_attempts[userid]+=1
+			else:
+				execute_access_attempts[userid]=1
+				
+			if execute_access_attempts[userid]>=3:
+				embedVar = discord.Embed(title="Timed out", color=0xff0000)
+				embedVar.add_field(name="You cannot enter any more modpanel passwords for the next 10 minutes.",
+						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+			else:
+				embedVar = discord.Embed(title="Incorrect password", color=0xff0000)
+				embedVar.add_field(name=f"You have **{3-execute_access_attempts[userid]}** attempts remaining.",
+						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+			await interaction.response.send_message(embed=embedVar, ephemeral=True)
+
+#######################
 
 if not os.path.exists("server_urls.json"):
 	with open("server_urls.json", "w") as urlsfile:
