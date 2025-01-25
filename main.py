@@ -271,6 +271,9 @@ async def invite_cmd(interaction: discord.Interaction):
 @tree.command(name="team", description="Fetches a team's information")
 async def team_cmd(interaction: discord.Interaction):
 
+	username = interaction.user.name
+	pfp_url = interaction.user.display_avatar.url
+	
 	with open("server_urls.json", "r") as url_file:
 		server_urls = json.load(url_file)
 	if str(interaction.guild.id) not in server_urls:
@@ -289,9 +292,12 @@ async def team_cmd(interaction: discord.Interaction):
 			embedVar = discord.Embed(title="Team Info", color=0xff0000)
 			embedVar.add_field(name="An error occured.",
 					  value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>", inline=False)
+			await interaction.response.send_message(embed=embedVar, ephemeral=True)
+
 		else:
 			overall, tables = output
-			embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43)
+			embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43, description=f"Requested by **{username}**")
+			embedVar.set_thumbnail(url=pfp_url)
 			place = "Error"
 			for field in pull_leaderboard(interaction):
 				if team.lower() in field.lower():
@@ -304,7 +310,7 @@ async def team_cmd(interaction: discord.Interaction):
 				embedVar.add_field(name=f"**{image}**", value=f"```{tables[image]}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
 			embedVar.add_field(name="", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>", inline=False)
-		await interaction.response.send_message(embed=embedVar)
+			await interaction.response.send_message(embed=embedVar)
 
 	teams = get_all_teams(interaction)
 	choices = [discord.SelectOption(label=team, value=team) for team in teams]
@@ -333,6 +339,9 @@ async def team_cmd(interaction: discord.Interaction):
 @tree.command(name="leaderboard", description="Fetches the current leaderboard")
 async def leaderboard_cmd(interaction: discord.Interaction):
 
+	username = interaction.user.name
+	pfp_url = interaction.user.display_avatar.url
+	
 	with open("server_urls.json", "r") as url_file:
 		server_urls = json.load(url_file)
 	if str(interaction.guild.id) not in server_urls:
@@ -346,13 +355,15 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 		image = select_menu.values[0]
 
 		if image in get_all_images(interaction):
-			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
+			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43, description=f"Requested by **{username}**")
+			embedVar.set_thumbnail(url=pfp_url)
 			content = "\n\n".join(image_leaderboard(image, interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>", inline=False)
 			await interaction.response.send_message(embed=embedVar)
 		elif image=="Overall":
-			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
+			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43, description=f"Requested by **{username}**")
+			embedVar.set_thumbnail(url=pfp_url)
 			content = "\n\n".join(pull_leaderboard(interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>", inline=False)
