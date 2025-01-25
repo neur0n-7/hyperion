@@ -19,8 +19,9 @@ intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-execute_access_attempts = {}
-execute_access_timeouts = {}
+modgroup = app_commands.Group(name="mod", description="Commands accessible only to those with Manage Server permissions")
+
+##############################################################################
 
 def get_time(code):
 	return(datetime.datetime.now().strftime("%"+code))
@@ -204,11 +205,13 @@ def get_all_teams(interaction):
 	return [j[1] for j in [i.split() for i in pull_leaderboard(interaction)[1:]]]
 
 
-@client.event
-async def on_ready():
-	await tree.sync()
-	print(f'{client.user} is online and active in Discord.')
-	await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="/help for commands"))
+##############################################################################
+
+
+
+
+
+##############################################################################
 
 
 @tree.command(name="ping", description="Checks if Hyperion is online")
@@ -222,6 +225,9 @@ async def ping_cmd(interaction: discord.Interaction):
 	await interaction.response.send_message(embed=embedVar)
 
 
+##############################################################################
+
+
 @tree.command(name="help", description="List all Hyperion commands")
 async def help_cmd(interaction: discord.Interaction):
 	embedVar = discord.Embed(title="Help", color=0x0d2d43)
@@ -229,11 +235,15 @@ async def help_cmd(interaction: discord.Interaction):
 	embedVar.add_field(name="/ping", value="Checks if Hyperion is online", inline=False)
 	embedVar.add_field(name="/leaderboard", value="Fetches the current leaderboard- overall or for a specific image", inline=False)
 	embedVar.add_field(name="/team", value="Fetches a team's information", inline=False)
-	embedVar.add_field(name="/seturl", value="Sets the scoring server URL for this server (Manage Server permissions required)", inline=False)
-	embedVar.add_field(name="/geturl", value="Gets the current scoring server URL for this server", inline=False)
 	embedVar.add_field(name="/invite", value="Invite Hyperion to your own server", inline=False)
+	embedVar.add_field(name="/mod seturl", value="Sets the scoring server URL for this server (Manage Server permissions required)", inline=False)
+	embedVar.add_field(name="/mod geturl", value="Gets the current scoring server URL for this server", inline=False)
 	embedVar.add_field(name="", value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>", inline=True)
 	await interaction.response.send_message(embed=embedVar)
+
+
+##############################################################################
+
 
 @tree.command(name="invite", description="Invite Hyperion to your own servers")
 async def invite_cmd(interaction: discord.Interaction):
@@ -253,6 +263,10 @@ async def invite_cmd(interaction: discord.Interaction):
 	view.add_item(button)
 
 	await interaction.response.send_message(embed=embedVar, view=view)
+
+
+##############################################################################
+
 
 @tree.command(name="team", description="Fetches a team's information")
 async def team_cmd(interaction: discord.Interaction):
@@ -313,6 +327,9 @@ async def team_cmd(interaction: discord.Interaction):
 	)
 
 
+##############################################################################
+
+
 @tree.command(name="leaderboard", description="Fetches the current leaderboard")
 async def leaderboard_cmd(interaction: discord.Interaction):
 
@@ -369,8 +386,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 		view=discord.ui.View().add_item(select_menu)
 	)
 
-
-@tree.command(name="seturl", description="Set the scoring server URL for this server.")
+@modgroup.command(name="seturl", description="Set the scoring server URL for this server.")
 @app_commands.describe(newurl="Enter the URL of the scoring server to connect the bot to.")
 async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 	if not interaction.user.guild_permissions.manage_guild:
@@ -413,9 +429,20 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
 		await interaction.response.send_message(embed=embedVar, ephemeral=True)
 
-@tree.command(name="geturl", description="Get the current scoring server URL for this server.")
-async def geturl_cmd(interaction: discord.Interaction):
+##############################################################################
 
+@modgroup.command(name="geturl", description="Get the current scoring server URL for this server.")
+async def geturl_cmd(interaction: discord.Interaction):
+	if not interaction.user.guild_permissions.manage_guild:
+		embedVar = discord.Embed(title="Error", color=0xff0000)
+		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.",
+					 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
+		await interaction.response.send_message(
+			embed=embedVar,
+			ephemeral=True
+		)
+		return
+		
 	with open("server_urls.json", "r") as url_file:
 		server_urls = json.load(url_file)
 
@@ -431,73 +458,18 @@ async def geturl_cmd(interaction: discord.Interaction):
 					value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
 	await interaction.response.send_message(embed=embedVar)
 
-modpanel_group = app_commands.Group(name="modpanel", description="Hyperion mod commands")
 
-@modpanel_group.command(name="execute", description="Execute Python command on Hyperion console")
-async def modpanel_execute(interaction: discord.Interaction, cmd: str, passwd: str):
-	userid = interaction.user.id
+##############################################################################
 
-	# user is timed out
-	if userid in execute_access_timeouts.keys():
-		# check if timeout has expired
-		if time.time()-execute_access_timeouts[userid]>=600:
-			del execute_access_timeouts[userid]
-		else:
-			embedVar = discord.Embed(title="Error", color=0xff0000)
-			embedVar.add_field(name=f"You are on a timeout. Please try again in **{round(execute_access_timeouts[userid]-time.time(), 1)}** seconds.",
-						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
-			await interaction.response.send_message(embed=embedVar, ephemeral=True)
-			return
-	else:
-		if passwd==os.environ["MODPANEL_PASSWD"]:
-			# passwd correct
-			execute_access_attempts[userid]=0
-
-			old_stdout = sys.stdout
-			sys.stdout = io.StringIO()
-			try:
-				exec(cmd)
-				output = sys.stdout.getvalue()[:900]
-			except Exception as error:
-				output = (None, str(error)[:900])
-			finally:
-				sys.stdout = old_stdout
-			embedVar = discord.Embed(title="Execution Output", color=0x0d2d43)
-			if isinstance(output, tuple) and output[0] is None:
-				embedVar.add_field(name="**Execution error:**",
-						 value=f"```{output[1]}```\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
-			else:
-				embedVar.add_field(name="",
-							 value=f"```{output}```\n-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
-
-			await interaction.response.send_message(embed=embedVar, ephemeral=True)
-			
-		else:
-			# passwd incorrect
-			if userid in execute_access_attempts.keys():
-				execute_access_attempts[userid]+=1
-			else:
-				execute_access_attempts[userid]=1
-				
-			if execute_access_attempts[userid]>=3:
-				execute_access_timeouts[userid]=time.time()
-				embedVar = discord.Embed(title="Timed out", color=0xff0000)
-				embedVar.add_field(name="You cannot enter any more modpanel passwords for the next 10 minutes.",
-						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
-			else:
-				embedVar = discord.Embed(title="Incorrect password", color=0xff0000)
-				embedVar.add_field(name=f"You have **{3-execute_access_attempts[userid]}** attempts remaining.",
-						 value="-# Hyperion - Sarpedon Scoring Server Discord Bot  <:hyperion:1324540054349152279>")
-			await interaction.response.send_message(embed=embedVar, ephemeral=True)
-
-tree.add_command(modpanel_group)
+tree.add_command(modgroup)
 
 @client.event
 async def on_ready():
 	await tree.sync()
-	print("Logged in and ready")
+	print(f'{client.user} is online and active in Discord.')
+	await client.change_presence(activity=discord.Activity(type=discord.ActivityType.playing, name="/help for commands"))
 
-#######################
+##############################################################################
 
 if not os.path.exists("server_urls.json"):
 	with open("server_urls.json", "w") as urlsfile:
