@@ -208,12 +208,6 @@ def get_all_teams(interaction):
 ##############################################################################
 
 
-
-
-
-##############################################################################
-
-
 @tree.command(name="ping", description="Checks if Hyperion is online")
 async def ping_cmd(interaction: discord.Interaction):
 	latency = round(interaction.client.latency * 1000)
@@ -291,7 +285,7 @@ async def team_cmd(interaction: discord.Interaction):
 
 		else:
 			overall, tables = output
-			embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43, description=f"Requested by **{username}**")
+			embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43)
 			embedVar.set_thumbnail(url=pfp_url)
 			place = "Error"
 			for field in pull_leaderboard(interaction):
@@ -304,6 +298,7 @@ async def team_cmd(interaction: discord.Interaction):
 			for image in tables:
 				embedVar.add_field(name=f"**{image}**", value=f"```{tables[image]}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
+			embedVar.set_footer(text=f"Requested by **{username}**", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 
 	teams = get_all_teams(interaction)
@@ -347,18 +342,20 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 		image = select_menu.values[0]
 
 		if image in get_all_images(interaction):
-			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43, description=f"Requested by **{username}**")
+			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
 			embedVar.set_thumbnail(url=pfp_url)
 			content = "\n\n".join(image_leaderboard(image, interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
+			embedVar.set_footer(text=f"Requested by **{username}**", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 		elif image=="Overall":
-			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43, description=f"Requested by **{username}**")
+			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
 			embedVar.set_thumbnail(url=pfp_url)
 			content = "\n\n".join(pull_leaderboard(interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
+			embedVar.set_footer(text=f"Requested by **{username}**", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 
 
