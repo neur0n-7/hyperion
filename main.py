@@ -298,7 +298,7 @@ async def team_cmd(interaction: discord.Interaction):
 			for image in tables:
 				embedVar.add_field(name=f"**{image}**", value=f"```{tables[image]}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
-			embedVar.set_footer(text=f"Requested by **{username}**", icon_url=pfp_url)
+			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 
 	teams = get_all_teams(interaction)
@@ -347,7 +347,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 			content = "\n\n".join(image_leaderboard(image, interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
-			embedVar.set_footer(text=f"Requested by **{username}**", icon_url=pfp_url)
+			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 		elif image=="Overall":
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
@@ -355,7 +355,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 			content = "\n\n".join(pull_leaderboard(interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
-			embedVar.set_footer(text=f"Requested by **{username}**", icon_url=pfp_url)
+			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 
 
