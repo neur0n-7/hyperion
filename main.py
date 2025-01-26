@@ -248,7 +248,7 @@ async def invite_cmd(interaction: discord.Interaction):
 	)
 
 	embedVar = discord.Embed(title="Invite Hyperion", color=0x0d2d43)
-	embedVar.add_field(name="Click the button below to invite me to your server!", inline=False)
+	embedVar.add_field(name="Click the button below to invite me to your server!", value="", inline=False)
 
 	view = discord.ui.View()
 	view.add_item(button)
@@ -269,7 +269,7 @@ async def team_cmd(interaction: discord.Interaction):
 		server_urls = json.load(url_file)
 	if str(interaction.guild.id) not in server_urls:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
-		embedVar.add_field(name="No scoring server URL has been set for this server.", inline=False)
+		embedVar.add_field(name="No scoring server URL has been set for this server.", value="", inline=False)
 		await interaction.response.send_message(embed=embedVar, ephemeral=True)
 		return
 
@@ -280,7 +280,7 @@ async def team_cmd(interaction: discord.Interaction):
 		output = pull_team(team, interaction)
 		if output is None:
 			embedVar = discord.Embed(title="Team Info", color=0xff0000)
-			embedVar.add_field(name="An error occured.")
+			embedVar.add_field(name="An error occured.", value="")
 			await interaction.response.send_message(embed=embedVar, ephemeral=True)
 
 		else:
@@ -312,7 +312,7 @@ async def team_cmd(interaction: discord.Interaction):
 	select_menu.callback = team_select_callback 
 
 	embedVar = discord.Embed(title="Team Info", color=0x0d2d43)
-	embedVar.add_field(name="Please select a team to get the information of.", inline=False)
+	embedVar.add_field(name="Please select a team to get the information of.", value="", inline=False)
 
 	await interaction.response.send_message(
 		embed=embedVar,
@@ -334,7 +334,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 		server_urls = json.load(url_file)
 	if str(interaction.guild.id) not in server_urls:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
-		embedVar.add_field(name="No scoring server URL has been set for this server.", inline=False)
+		embedVar.add_field(name="No scoring server URL has been set for this server.", value="", inline=False)
 		await interaction.response.send_message(embed=embedVar, ephemeral=True)
 		return
 
@@ -377,7 +377,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 	select_menu.callback = leaderboard_select_callback
 
 	embedVar = discord.Embed(title="Leaderboard", color=0x0d2d43)
-	embedVar.add_field(name="Please select an image or \"Overall\" to get the leaderboard for.", inline=False)
+	embedVar.add_field(name="Please select an image or \"Overall\" to get the leaderboard for.", value="", inline=False)
 
 	await interaction.response.send_message(
 		embed=embedVar,
@@ -390,7 +390,7 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 	if not interaction.user.guild_permissions.manage_guild:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
-		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.")
+		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.", value="")
 		await interaction.response.send_message(
 			embed=embedVar,
 			ephemeral=True
@@ -422,7 +422,7 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 		await interaction.response.send_message(embed=embedVar)
 	else:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
-		embedVar.add_field(name=f"Invalid URL. Check if there is a typo in {newurl}.")
+		embedVar.add_field(name=f"Invalid URL. Check if there is a typo in {newurl}.", value="")
 		await interaction.response.send_message(embed=embedVar, ephemeral=True)
 
 ##############################################################################
@@ -431,7 +431,7 @@ async def seturl_cmd(interaction: discord.Interaction, newurl: str):
 async def geturl_cmd(interaction: discord.Interaction):
 	if not interaction.user.guild_permissions.manage_guild:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
-		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.")
+		embedVar.add_field(name="You don't have the required 'Manage Server' permission to use this command.",value="")
 		await interaction.response.send_message(
 			embed=embedVar,
 			ephemeral=True
@@ -444,11 +444,11 @@ async def geturl_cmd(interaction: discord.Interaction):
 	server_id = str(interaction.guild.id)
 	if server_id not in server_urls:
 		embedVar = discord.Embed(title="Error", color=0xff0000)
-		embedVar.add_field(name="No URL has been set for this server.")
+		embedVar.add_field(name="No URL has been set for this server.",value="")
 		await interaction.response.send_message(embed=embedVar, ephemeral=True)
 		return
 	embedVar = discord.Embed(title="Current URL", color=0x0d2d43)
-	embedVar.add_field(name=f"The current URL for this server is: {server_urls[server_id]}")
+	embedVar.add_field(name=f"The current URL for this server is: {server_urls[server_id]}", value="")
 	await interaction.response.send_message(embed=embedVar)
 
 
