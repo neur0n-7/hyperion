@@ -1,10 +1,8 @@
+
 import os
-import io
 import requests
-import datetime
 import json
 import time
-import sys
 
 import discord
 from discord import app_commands
@@ -22,22 +20,6 @@ tree = app_commands.CommandTree(client)
 modgroup = app_commands.Group(name="mod", description="Commands accessible only to those with Manage Server permissions")
 
 ##############################################################################
-
-def get_time(code):
-	return(datetime.datetime.now().strftime("%"+code))
-
-
-def current_time():
-	month = get_time('B')
-	year = get_time('Y')
-	hour = get_time('I')
-	minute = get_time('M')
-	am_pm = get_time('p')
-	second = get_time('S')
-	dayofweek = get_time('A')
-	date = get_time('d')
-	date = (dayofweek+', '+month+ ' '+date+', '+year)
-	return (hour+':'+minute+':'+second+' '+am_pm)
 
 
 def pull_leaderboard(interaction):
@@ -296,7 +278,7 @@ async def team_cmd(interaction: discord.Interaction):
 			""")
 			for image in tables:
 				embedVar.add_field(name=f"**{image}**", value=f"```{tables[image]}```", inline=False)
-			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
+			embedVar.add_field(name="", value=f"Generated at: <t:{time.time()}:f>", inline=False)
 			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 
@@ -344,14 +326,14 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
 			content = "\n\n".join(image_leaderboard(image, interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
-			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
+			embedVar.add_field(name="", value=f"Generated at: <t:{time.time()}:f>", inline=False)
 			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 		elif image=="Overall":
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
 			content = "\n\n".join(pull_leaderboard(interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
-			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
+			embedVar.add_field(name="", value=f"Generated at: <t:{time.time()}:f>", inline=False)
 			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 
