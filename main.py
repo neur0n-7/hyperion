@@ -286,7 +286,6 @@ async def team_cmd(interaction: discord.Interaction):
 		else:
 			overall, tables = output
 			embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43)
-			embedVar.set_thumbnail(url=pfp_url)
 			place = "Error"
 			for field in pull_leaderboard(interaction):
 				if team.lower() in field.lower():
@@ -343,7 +342,6 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 
 		if image in get_all_images(interaction):
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
-			embedVar.set_thumbnail(url=pfp_url)
 			content = "\n\n".join(image_leaderboard(image, interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
@@ -351,7 +349,6 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 			await interaction.response.send_message(embed=embedVar)
 		elif image=="Overall":
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
-			embedVar.set_thumbnail(url=pfp_url)
 			content = "\n\n".join(pull_leaderboard(interaction)[:19])
 			embedVar.add_field(name="", value=f"```{content}```", inline=False)
 			embedVar.add_field(name="", value=f"Generated at: {current_time()}", inline=False)
