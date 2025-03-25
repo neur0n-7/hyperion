@@ -1,4 +1,21 @@
 
+#                                                                                              #
+#                                                                                              #
+#                                                                                              #
+#       __  __     __  __     ______   ______     ______     __     ______     __   __         #
+#      /\ \_\ \   /\ \_\ \   /\  == \ /\  ___\   /\  == \   /\ \   /\  __ \   /\ "-.\ \        #
+#      \ \  __ \  \ \____ \  \ \  _-/ \ \  __\   \ \  __<   \ \ \  \ \ \/\ \  \ \ \-.  \       #
+#       \ \_\ \_\  \/\_____\  \ \_\    \ \_____\  \ \_\ \_\  \ \_\  \ \_____\  \ \_\\"\_\      #
+#        \/_/\/_/   \/_____/   \/_/     \/_____/   \/_/ /_/   \/_/   \/_____/   \/_/ \/_/      # 
+#                                                                                              #
+#                              Sarpedon Scoring Server Discord Bot                             #
+#                    View leaderboard and team info directly in your server                    #
+#                             https://github.com/neur0n-7/hyperion                             #
+#                                                                                              #
+#                                                                                              #
+#                                                                                              #
+
+
 import os
 import requests
 import json
