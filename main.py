@@ -343,7 +343,8 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
 			content = image_leaderboard(image, interaction)
 			for start_row in range(0, len(content)-1, 15):
-				embedVar.add_field(name="", value=f"```{"\n\n".join(content[start_row:start_row+15])}```", inline=False)
+				to_add = "\n\n".join(content[start_row:start_row+15])
+				embedVar.add_field(name="", value=f"```{to_add}```", inline=False)
 
 			embedVar.add_field(name="", value=f"Generated at: <t:{int(time.time())}:f>", inline=False)
 			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
@@ -352,7 +353,8 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
 			content = pull_leaderboard(interaction)
 			for start_row in range(0, len(content)-1, 15):
-				embedVar.add_field(name="", value=f"```{"\n\n".join(content[start_row:start_row+15])}```", inline=False)
+				to_add = "\n\n".join(content[start_row:start_row+15])
+				embedVar.add_field(name="", value=f"```{to_add}```", inline=False)
 
 			embedVar.add_field(name="", value=f"Generated at: <t:{int(time.time())}:f>", inline=False)
 			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
