@@ -341,15 +341,19 @@ async def leaderboard_cmd(interaction: discord.Interaction):
 
 		if image in get_all_images(interaction):
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
-			content = "\n\n".join(image_leaderboard(image, interaction)[:19])
-			embedVar.add_field(name="", value=f"```{content}```", inline=False)
+			content = image_leaderboard(image, interaction)
+			for start_row in range(0, len(content)-1, 15):
+				embedVar.add_field(name="", value=f"```{"\n\n".join(content[start_row:start_row+15])}```", inline=False)
+
 			embedVar.add_field(name="", value=f"Generated at: <t:{int(time.time())}:f>", inline=False)
 			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
 		elif image=="Overall":
 			embedVar = discord.Embed(title=f"<:podium:1324539869438935070>   Leaderboard: {image}", color=0x0d2d43)
-			content = "\n\n".join(pull_leaderboard(interaction)[:19])
-			embedVar.add_field(name="", value=f"```{content}```", inline=False)
+			content = pull_leaderboard(interaction)
+			for start_row in range(0, len(content)-1, 15):
+				embedVar.add_field(name="", value=f"```{"\n\n".join(content[start_row:start_row+15])}```", inline=False)
+
 			embedVar.add_field(name="", value=f"Generated at: <t:{int(time.time())}:f>", inline=False)
 			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
 			await interaction.response.send_message(embed=embedVar)
