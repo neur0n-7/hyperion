@@ -26,6 +26,7 @@ from discord import app_commands
 from table2ascii import PresetStyle
 from table2ascii import table2ascii as t2a
 from bs4 import BeautifulSoup
+from pprint import pprint
 
 from keep_alive import keep_alive, start_self_ping
 
@@ -260,63 +261,94 @@ async def invite_cmd(interaction: discord.Interaction):
 
 @tree.command(name="team", description="Fetches a team's information")
 async def team_cmd(interaction: discord.Interaction):
+    username = interaction.user.name
+    pfp_url = interaction.user.display_avatar.url
 
-	username = interaction.user.name
-	pfp_url = interaction.user.display_avatar.url
-	
-	with open("server_urls.json", "r") as url_file:
-		server_urls = json.load(url_file)
-	if str(interaction.guild.id) not in server_urls:
-		embedVar = discord.Embed(title="Error", color=0xff0000)
-		embedVar.add_field(name="No scoring server URL has been set for this server.", value="", inline=False)
-		await interaction.response.send_message(embed=embedVar, ephemeral=True)
-		return
+    with open("server_urls.json", "r") as url_file:
+        server_urls = json.load(url_file)
+
+    if str(interaction.guild.id) not in server_urls:
+        embedVar = discord.Embed(title="Error", color=0xff0000)
+        embedVar.add_field(
+            name="No scoring server URL has been set for this server.",
+            value="",
+            inline=False,
+        )
+        await interaction.response.send_message(embed=embedVar, ephemeral=True)
+        return
+
+    # Common handler
+    async def send_team_info(team: str, responder: discord.Interaction):
+        output = pull_team(team, responder)
+        if output is None:
+            embedVar = discord.Embed(title="Team Info", color=0xff0000)
+            embedVar.add_field(name="An error occurred.", value="")
+            await responder.response.send_message(embed=embedVar, ephemeral=True)
+        else:
+            overall, tables = output
+            embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43)
+
+            # Pull leaderboard place
+            place = "Error"
+            for field in pull_leaderboard(responder):
+                if team.lower() in field.lower():
+                    place = field.strip().split()[0]
+
+            embedVar.add_field(
+                name="**Overall**",
+                value=f"""<:podium:1324539869438935070> Current Place: {place}
+:hourglass: Play Time: {overall[0]}
+:dart: Total Score: {overall[1]}""",
+            )
+
+            # Prevent going over 25 field limit
+            max_fields = 23
+            for i, image in enumerate(tables):
+                if i >= max_fields:
+                    break
+                embedVar.add_field(name=f"**{image}**", value=f"```{tables[image]}```", inline=False)
+
+            embedVar.add_field(
+                name="", value=f"Generated at: <t:{int(time.time())}:f>", inline=False
+            )
+            embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
+
+            await responder.response.send_message(embed=embedVar, ephemeral=False)
+
+    teams = get_all_teams(interaction)
+
+    if len(teams) >= 25:
+        # Modal flow
+        class TeamModal(discord.ui.Modal, title="Enter Team Name"):
+            team_name = discord.ui.TextInput(label="Team Name", placeholder="Enter team name")
+
+            async def on_submit(self, modal_interaction: discord.Interaction):
+                await send_team_info(self.team_name.value, modal_interaction)
+
+        await interaction.response.send_modal(TeamModal())
+
+    else:
+        # Dropdown flow
+        class TeamSelect(discord.ui.Select):
+            def __init__(self):
+                options = [discord.SelectOption(label=team, value=team) for team in teams]
+                super().__init__(placeholder="Choose a team...", options=options)
+
+            async def callback(self, select_interaction: discord.Interaction):
+                await send_team_info(self.values[0], select_interaction)
+
+        view = discord.ui.View()
+        view.add_item(TeamSelect())
+
+        embedVar = discord.Embed(title="Team Info", color=0x0d2d43)
+        embedVar.add_field(
+            name="Please select a team to get the information of.",
+            value="",
+            inline=False,
+        )
 
 
-	async def team_select_callback(interaction: discord.Interaction):
-		team = select_menu.values[0]
-
-		output = pull_team(team, interaction)
-		if output is None:
-			embedVar = discord.Embed(title="Team Info", color=0xff0000)
-			embedVar.add_field(name="An error occured.", value="")
-			await interaction.response.send_message(embed=embedVar, ephemeral=True)
-
-		else:
-			overall, tables = output
-			embedVar = discord.Embed(title=f"Team Info ({team})", color=0x0d2d43)
-			place = "Error"
-			for field in pull_leaderboard(interaction):
-				if team.lower() in field.lower():
-					place = field.strip().split()[0]
-			embedVar.add_field(name="**Overall**", value=f"""<:podium:1324539869438935070> Current Place: {place}
-	:hourglass: Play Time: {overall[0]}
-	:dart: Total Score: {overall[1]}
-			""")
-			for image in tables:
-				embedVar.add_field(name=f"**{image}**", value=f"```{tables[image]}```", inline=False)
-			embedVar.add_field(name="", value=f"Generated at: <t:{int(time.time())}:f>", inline=False)
-			embedVar.set_footer(text=f"Requested by {username}", icon_url=pfp_url)
-			await interaction.response.send_message(embed=embedVar)
-
-	teams = get_all_teams(interaction)
-	choices = [discord.SelectOption(label=team, value=team) for team in teams]
-
-	select_menu = discord.ui.Select(
-		placeholder="Choose a team...",
-		options=choices
-	)
-
-	select_menu.callback = team_select_callback 
-
-	embedVar = discord.Embed(title="Team Info", color=0x0d2d43)
-	embedVar.add_field(name="Please select a team to get the information of.", value="", inline=False)
-
-	await interaction.response.send_message(
-		embed=embedVar,
-		ephemeral=True,
-		view=discord.ui.View().add_item(select_menu)
-	)
+        await interaction.response.send_message(embed=embedVar, ephemeral=True, view=view)
 
 
 ##############################################################################
